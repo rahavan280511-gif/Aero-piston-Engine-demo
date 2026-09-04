@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Supercharged V8 Aero-Engine</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #0f1117;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #fff;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            background: rgba(15, 17, 23, 0.85);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+
+    <!-- ES Module Import Map for Three.js & Addons -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="info">
+        ✈️ <b>3D Supercharged V8 Aero-Engine</b> — Dom Toretto Blower Edition<br>
+        <span style="font-size: 11px; color: #a0aec0;">💡 Left-click + drag: Rotate | Scroll: Zoom | Right-click + drag: Pan</span>
+    </div>
+    <script type="module" src="/3d/viewer.js"></script>
+</body>
+
+</html>
