@@ -1,40 +1,47 @@
-# AI-Enabled Digital Twin for MALE UAV Aero-Piston Engine
-
-A real-time **AI-Enabled Digital Twin demonstration package** for a Medium-Altitude Long-Endurance (MALE) UAV aero-piston engine. The system combines first-principles thermodynamic physics models, real-time telemetry simulation, residual analysis, hybrid rule + ML anomaly detection (Isolation Forest), health degradation tracking, conceptual Remaining Useful Life (RUL) estimation, mission recording & replay, and engineer-friendly explainable diagnostics.
-
----
-
-## 1. Overview
-
-Medium-Altitude Long-Endurance (MALE) UAVs perform long-duration missions such as Intelligence, Surveillance, and Reconnaissance (ISR), maritime patrol, and communication relay. Propulsion reliability is mission-critical. Traditional monitoring observes raw sensor values against static thresholds without understanding whether the engine is behaving as expected under dynamic flight loads.
-
-This project delivers a continuously synchronized Digital Twin core that pairs live telemetry with expected physical behavior, detecting subtle thermal and power anomalies early before catastrophic engine failure occurs.
+# Comprehensive Technical Documentation & Architecture Manual
+## UAV Aero-Piston Engine Digital Twin & 3D Supercharged V8 System
 
 ---
 
-## 2. Project Objective
+## 1. Executive Summary
 
-- **Continuous Synchronization**: Pair raw engine telemetry streams with a thermodynamic physics model in real-time ($dt = 0.5\text{ s}$).
-- **Hybrid Intelligence**: Combine deterministic physical residual thresholding with an offline-trained Isolation Forest machine learning model.
-- **Prognostics & Health**: Quantify engine degradation accumulation ($d \in [0, 1]$) and map life consumption to conceptual Remaining Useful Life ($\text{RUL} = 200 \times (1 - d)\text{ hours}$).
-- **Explainable Diagnostics**: Translate physical residual deviations and ML flags into engineer-oriented actionable maintenance messages.
-- **Mission Intelligence**: Replay recorded CSV mission logs through the identical Digital Twin core for post-flight safety audits.
+This project presents a real-time, physics-informed **Digital Twin** and **3D Interactive Health Monitoring System** for a Medium-Altitude Long-Endurance (MALE) UAV aero-piston engine. 
+
+The application pairs first-principles thermodynamic state estimation equations with live sensor telemetry streams, residual analysis, hybrid machine learning anomaly detection (Isolation Forest), supervised fault classification (Random Forest), health degradation accumulation tracking, conceptual Remaining Useful Life (RUL) estimation, and an interactive **3D Supercharged V8 Aero-Engine model** inspired by Dominic Toretto's 1969 Dodge Charger from *The Fast & The Furious*.
 
 ---
 
-## 3. What This Demo Shows
+## 2. Technology Stack
 
-- **Real-Time Telemetry Simulation**: Simulates dynamic UAV aero-piston engine speed, throttle dynamics, EGT, CHT, and oil temperature under realistic sensor noise and load profiles.
-- **Physics Expected Behavior Model**: Computes first-principles expected EGT, CHT, and oil temperatures based on engine RPM, throttle setting, and ambient conditions.
-- **Hybrid Anomaly Detection**: Integrates rule-based residual thresholds with an `IsolationForest` ML model trained on 7 feature channels (`rpm`, `throttle`, `egt`, `cht`, `oil_temp`, `res_egt`, `res_cht`).
-- **Engine Health Index (EHI) & Prognostics**: Calculates scalar health index ($0\text{--}100\%$), tracks cumulative degradation, and estimates conceptual RUL hours.
-- **Explainable Diagnostics & Mission Replay**: Explains *why* an anomaly was flagged and allows replaying flight CSV logs row-by-row through the twin backend.
+### Backend & API Framework
+- **Python 3.11+**: Primary programming language for physics calculations, ML inference, and API server.
+- **FastAPI (v0.110+)**: High-performance asynchronous web server framework handling REST endpoints and real-time WebSocket streams.
+- **Uvicorn (v0.28+)**: ASGI server implementation for async I/O.
+- **Pydantic (v2.6+)**: Data validation and strict typing contracts.
 
-> **Note**: This system is a **demonstrative research prototype**, not a certified aviation maintenance system.
+### Physics & Data Science Pipeline
+- **NumPy (v1.26+)**: Fast numerical vector computing and matrix math.
+- **Pandas (v2.2+)**: Structured time-series telemetry data manipulation and CSV processing.
+- **Scikit-Learn (v1.4+)**: 
+  - `IsolationForest`: Unsupervised anomaly detection model trained on multi-dimensional telemetry & residual features.
+  - `RandomForestClassifier`: Supervised multi-class fault classifier (`NORMAL`, `OVERHEATING`, `LUBRICATION_ISSUE`).
+- **Joblib (v1.3+)**: Efficient model serialization and artifact persistence.
+
+### User Interface & Live Dashboard
+- **Streamlit (v1.32+)**: Web dashboard framework rendering telemetry metrics, Plotly interactive charts, live diagnostic cards, and embedded 3D viewer.
+- **Plotly (v5.19+)**: High-precision interactive time-series plots for real-time EGT, CHT, Oil Temperature, and Health Index monitoring.
+
+### 3D Graphics Engine & Visualization
+- **Three.js (v0.160.0 ES Modules)**: WebGL-based 3D scene rendering, studio lighting, materials, OrbitControls, and custom mesh animations.
+- **HTML5 / ES6 JavaScript**: Modern web browser client hosting the 3D canvas and iframe postMessage / WebSocket integration.
+
+### Deployment & Containerization
+- **Docker & Docker-Compose**: Multi-stage container builds exposing port `8000` (FastAPI API) and port `8501` (Streamlit Dashboard).
+- **Git**: Distributed source control.
 
 ---
 
-## 4. System Architecture
+## 3. System Architecture & End-to-End Pipeline
 
 ```text
  ┌───────────────────────────────────────────────────────────────────────────┐
@@ -51,317 +58,175 @@ This project delivers a continuously synchronized Digital Twin core that pairs l
                                        ▼
  ┌───────────────────────────────────────────────────────────────────────────┐
  │                      LAYER 3 — DIGITAL TWIN CORE                          │
- │   EnginePhysicsModel (app/physics_model.py) ──> Residuals & EHI Calculation  │
+ │   EnginePhysicsModel (app/physics_model.py) ──> Residuals & EHI Calculation │
  └─────────────────────────────────────┬─────────────────────────────────────┘
                                        │
                                        ▼
  ┌───────────────────────────────────────────────────────────────────────────┐
- │                         LAYER 4 — AI & ANOMALY                            │
+ │                    LAYER 4 — AI & HYBRID ANOMALY                          │
  │   Rule-Based Thresholds  +  Isolation Forest ML Model (7 Feature Channels)│
+ │   + Supervised Random Forest Fault Classifier                              │
  └─────────────────────────────────────┬─────────────────────────────────────┘
                                        │
                                        ▼
  ┌───────────────────────────────────────────────────────────────────────────┐
- │                      LAYER 5 — PROGNOSTICS (RUL)                          │
- │   Degradation Accumulation (d ∈ [0, 1]) ──> Conceptual RUL Estimation (hours)│
+ │                    LAYER 5 — EXPLAINABILITY & RUL                         │
+ │   Diagnostic Engine  +  Degradation Accumulation (RUL Hours Estimation)   │
  └─────────────────────────────────────┬─────────────────────────────────────┘
                                        │
                                        ▼
  ┌───────────────────────────────────────────────────────────────────────────┐
- │                    LAYER 6 — EXPLAINABILITY ENGINE                        │
- │   Main Indicator Isolation + Trend Buffer + Human-Readable Diagnostic Text│
- └─────────────────────────────────────┬─────────────────────────────────────┘
-                                       │
-                                       ▼
- ┌───────────────────────────────────────────────────────────────────────────┐
- │                     LAYER 7 — VISUALIZATION & UI                          │
- │   Streamlit Interactive Live Monitoring Dashboard (dashboard/app.py)     │
+ │                     LAYER 6 — VISUALIZATION & UI                          │
+ │   Streamlit Dashboard (dashboard/app.py) + 3D Supercharged V8 (Three.js)  │
  └───────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. Key Features
+## 4. Implementation Details by Component
 
-- **Dynamic Engine Simulator**: Ingests mission flight profiles (`endurance`, `high_altitude`, `cruise`) and executes controlled fault injection ($+40\text{ °C}$ EGT bias for $t > 60\text{ s}$).
-- **Thermodynamic Physics Model**: Calculates healthy reference baseline values for EGT, CHT, and oil temperature.
-- **EMA Residual Smoothing**: Dampens raw single-step sensor noise using Exponential Moving Average ($\alpha = 0.2$).
-- **Isolation Forest ML Model**: Detects multi-dimensional statistical anomalies across sensor telemetry and physical residual signals.
-- **Explainability Engine**: Translates residual deviations into maintenance diagnostic messages (e.g. *"EGT is 39.5°C above expected. Suggests possible overheating."*).
-- **Asynchronous API & WebSocket Stream**: Built on FastAPI with real-time push streams for minimal dashboard latency.
-- **Interactive Streamlit Dashboard**: Renders gauges, Plotly charts, hybrid decision banners, diagnostic cards, and state telemetry tables.
+### 4.1 Engine Telemetry Simulator (`app/simulator.py`)
+Generates realistic time-series telemetry snapshots at a cadence of $dt = 0.5\text{ s}$.
+- **Parameters Simulated**: Engine RPM, Throttle Position ($0.20 - 0.95$), Exhaust Gas Temperature (EGT in °C), Cylinder Head Temperature (CHT in °C), and Oil Temperature (in °C).
+- **Noise Model**: Additive Gaussian sensor noise ($\sigma_{\text{RPM}}=20$, $\sigma_{\text{EGT}}=5$, $\sigma_{\text{CHT}}=3$, $\sigma_{\text{OIL}}=2$).
+- **Live Manual Control & Fault Injection**: Allows manual throttle override and instant fault injection (`NONE`, `OVERHEATING`, `LUBRICATION_ISSUE`, `EXHAUST_LEAK`).
+
+### 4.2 Thermodynamic Physics Model (`app/physics_model.py`)
+Computes expected healthy parameter baselines given current operational inputs:
+$$\text{EGT}_{\text{expected}} = \text{EGT}_{\text{base}} + G_{\text{thr}} \cdot \text{Throttle} + G_{\text{rpm}} \cdot (\text{RPM} - \text{RPM}_{\text{idle}}) + G_{\text{amb}} \cdot \Delta T_{\text{ambient}}$$
+$$\text{CHT}_{\text{expected}} = \text{CHT}_{\text{base}} + K_{\text{CHT}} \cdot (\text{EGT}_{\text{base}} - \text{EGT}_{\text{ref}}) + G_{\text{amb,cht}} \cdot \Delta T_{\text{ambient}}$$
+$$\text{OIL}_{\text{expected}} = \text{OIL}_{\text{base}} + K_{\text{OIL}} \cdot (\text{EGT}_{\text{base}} - \text{EGT}_{\text{ref}}) + G_{\text{amb,oil}} \cdot \Delta T_{\text{ambient}}$$
+
+### 4.3 Digital Twin Core (`app/twin_core.py`)
+- **Residual Smoothing**: Applies Exponential Moving Average (EMA, $\alpha = 0.2$) on raw residuals:
+  $$R_{\text{smooth}}(t) = \alpha \cdot (y_{\text{measured}} - y_{\text{expected}}) + (1 - \alpha) \cdot R_{\text{smooth}}(t-1)$$
+- **Engine Health Index (EHI)**: Scalar health score normalized between $0$ (Critical) and $100$ (Nominal):
+  $$\text{EHI} = \max\left(0, 100 \cdot \left(1 - \sum w_i \cdot P_i\right)\right)$$
+- **Prognostics & RUL**: Accumulates health degradation ($d \in [0, 1]$) to calculate Remaining Useful Life hours ($\text{RUL} = 200 \times (1 - d)$).
+
+### 4.4 Machine Learning Models (`models/`)
+- **Unsupervised Anomaly Detection (`isolation_forest_anomaly.pkl`)**:
+  - Trained on 3,000 samples covering dynamic flight mission profiles and manual throttle sweeps across $[0.20, 0.95]$.
+  - Evaluates 7 core features: `[rpm, throttle, egt, cht, oil_temp, res_egt, res_cht]`.
+  - Incorporates 3-step majority-vote hysteresis buffer to eliminate single-tick false alarm flickering.
+- **Supervised Fault Classifier (`fault_classifier.pkl`)**:
+  - Random Forest classifier trained on 3,000 fault-injected samples.
+  - Classifies operational status into `NORMAL`, `OVERHEATING`, or `LUBRICATION_ISSUE` with $>99\%$ accuracy.
 
 ---
 
-## 6. Project Structure
+## 5. Iconic 3D Supercharged V8 Aero-Engine (`dashboard/3d_viewer/`)
+
+Inspired by **Dominic Toretto's 1969 Dodge Charger R/T** from *The Fast & The Furious*, the 3D visualization renders an authentic 90° V8 engine with an exposed Roots Supercharger:
+
+### Mechanical & Visual Design
+1. **Enderle / BDS "Shotgun" Air Scoop**:
+   - Stadium/capsule chrome housing with smooth rounded side walls.
+   - Chrome front faceplate with **3 distinct circular bore holes**.
+   - **3 Red Anodized Circular Butterfly Valves** inside the bores that **dynamically tilt open and close** in real-time response to throttle telemetry.
+   - Stainless steel side throttle linkage rod and bracket on the right side.
+2. **Dual Carburetors & Red Fuel Lines**:
+   - Twin 4-barrel carburetors with chrome fuel pressure regulators, brass fittings, and red ignition wires along dark ribbed valve covers.
+3. **6-71 Roots Supercharger (Blower)**:
+   - Polished chrome blower housing with double rotor humps, side cooling ribs, and extended blower drive snout.
+4. **Connected Blower Drive Belt & Pulley System**:
+   - **Top Blower Snout Pulley**: Cogged aluminum pulley mounted at `Z = 1.08`.
+   - **Bottom Crankshaft Blower Pulley**: Cogged aluminum pulley mounted at `Z = 1.08`.
+   - **Side Tensioner Idler Pulley**: Mounted on a spring-loaded arm at `X = -0.32`.
+   - **Continuous Wide Black Cogged Belt**: Looping around all three pulleys.
+   - **Synchronized Z-Axis Rotation**: Pre-rotated Z-geometry ensures pure 360° wheel rotation around pulley shafts with zero wobble.
+5. **Aero Propeller Assembly**:
+   - Extended drive spindle (`Z = 1.45`) with polished spinner cone and 3 carbon fiber blades with yellow safety tips, rotating in sync with engine RPM.
+6. **Telemetry Color Mapping**:
+   - **CHT**: Dynamic Green → Yellow → Red color & emissive glow on cylinder heads and cooling fins.
+   - **EGT**: Dynamic Green → Yellow → Red color & emissive glow on 8 exhaust primary headers and H-pipe crossover.
+   - **Oil Temp**: Dynamic thermal color mapping on oil pan sump.
+   - **Engine Health Index**: Engine block transforms from Silver (Nominal) → Anodized Amber (Caution) → Crimson Red (Critical/Overheating).
+   - **Anomaly Alarm**: Pulsing background warning flash on active anomaly.
+
+---
+
+## 6. Project Directory Structure
 
 ```text
 uav_engine_twin_demo/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py              # FastAPI application & WebSocket server
-│   ├── simulator.py         # Aero-piston engine telemetry simulator
-│   ├── physics_model.py     # Thermodynamic expected behavior physics model
-│   ├── twin_core.py        # Central state estimation & Digital Twin Core
-│   ├── anomaly.py          # Legacy rule anomaly detector helpers
-│   ├── mission_profiles.py # UAV flight profile definitions (endurance, etc.)
-│   └── replay.py           # Mission CSV replay engine
+│   ├── anomaly.py            # Rule-based thresholding module
+│   ├── main.py               # FastAPI application, REST & WebSocket routes
+│   ├── mission_profiles.py   # Pre-defined flight mission profile generators
+│   ├── physics_model.py      # Thermodynamic expected state predictor
+│   ├── replay.py             # CSV mission log replay engine
+│   ├── simulator.py          # Real-time engine telemetry simulator
+│   └── twin_core.py          # Central Digital Twin state & intelligence engine
 ├── dashboard/
-│   └── app.py               # Streamlit live monitoring user interface
-├── data/
-│   ├── normal_telemetry.csv # Generated normal telemetry dataset
-│   └── missions/
-│       ├── mission_001.csv  # Endurance mission recording
-│       └── mission_002.csv  # High altitude mission recording
-├── docs/
-│   ├── presentation_outline.md # 7-slide pitch deck presentation outline
-│   ├── demo_script.md          # Complete presentation script & 3-min flow
-│   └── architecture.md         # Full technical architecture specification
+│   ├── app.py                # Streamlit live monitoring dashboard
+│   └── 3d_viewer/
+│       ├── index.html        # 3D viewer HTML host
+│       └── viewer.js         # Three.js 3D Supercharged V8 engine model
+├── data/                     # Normal telemetry & CSV flight mission logs
 ├── models/
-│   └── isolation_forest_anomaly.pkl # Trained Isolation Forest model bundle
-├── train_anomaly_model.py   # Offline ML training script
-├── generate_mission.py      # Mission recording CLI generator
-├── requirements.txt         # Project dependencies
-└── README.md                # Main documentation
+│   ├── isolation_forest_anomaly.pkl  # Trained Isolation Forest model
+│   └── fault_classifier.pkl         # Trained Random Forest fault classifier
+├── docs/                     # Architecture & presentation docs
+├── Dockerfile                # Docker container build script
+├── docker-compose.yml        # Docker Compose configuration
+├── generate_fault_dataset.py # Fault dataset generator
+├── generate_mission.py       # Mission recorder script
+├── requirements.txt          # Python dependencies
+├── run_demo.py               # One-click launcher script
+├── train_anomaly_model.py    # Isolation Forest training pipeline
+└── train_fault_classifier.py # Random Forest training pipeline
 ```
 
 ---
 
-## 7. Requirements
+## 7. How to Run the Application
 
-- **Python**: `3.9` or higher recommended
-- **Core Dependencies**:
-  - `fastapi` & `uvicorn` (Backend web service & WebSocket)
-  - `streamlit` & `websocket-client` (Frontend dashboard UI)
-  - `scikit-learn` & `joblib` (Isolation Forest ML model)
-  - `numpy`, `pandas`, `plotly` (Data processing & visualization)
-  - `requests` (REST API client)
+### Option A: Local Python Environment (Recommended for Development)
 
----
+1. **Install Dependencies**:
+   ```powershell
+   pip install -r requirements.txt
+   ```
 
-## 8. How to Run the Demo
+2. **Start the FastAPI Backend**:
+   ```powershell
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
 
-### Option A — One-Click Automated Launcher (Recommended)
-```bash
-python run_demo.py
-```
-*This launches both the FastAPI backend and Streamlit dashboard automatically and opens `http://localhost:8501` in your default browser.*
+3. **Start the Streamlit Dashboard** (in a new terminal):
+   ```powershell
+   streamlit run dashboard/app.py
+   ```
 
-### Option B — Manual Terminal Execution
-
-**1. Install Dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-**2. Start FastAPI Backend Service**
-```bash
-python -m uvicorn app.main:app --reload --port 8000
-```
-*Backend runs at `http://127.0.0.1:8000` with OpenAPI Swagger UI at `http://127.0.0.1:8000/docs`.*
-
-**3. Launch Streamlit Dashboard (in a second terminal)**
-```bash
-python -m streamlit run dashboard/app.py
-```
-*Dashboard opens automatically in your browser at `http://localhost:8501`.*
+4. **Access Interfaces**:
+   - **Streamlit Dashboard**: `http://localhost:8501`
+   - **FastAPI Swagger API Docs**: `http://localhost:8000/docs`
+   - **3D Supercharged V8 Model**: `http://localhost:8000/3d/`
 
 ---
 
-## 9. Live Demo Flow
+### Option B: Containerized Execution with Docker
 
-```text
-START
-  ↓
-FastAPI Backend (http://127.0.0.1:8000)
-  ↓
-Engine Simulator / Replay Engine
-  ↓
-Telemetry Packets (RPM, Throttle, EGT, CHT, Oil Temp)
-  ↓
-Digital Twin Core Processing
-  ↓
-Physics Model Expected Predictions
-  ↓
-EMA Residual Calculation (Measured − Expected)
-  ↓
-Hybrid Anomaly Detection (Rule Thresholds + Isolation Forest ML)
-  ↓
-Engine Health Index (EHI) Assessment
-  ↓
-Degradation Accumulation & RUL Estimation
-  ↓
-Explainable Diagnostics Generation
-  ↓
-WebSocket Broadcast Stream
-  ↓
-Streamlit Dashboard Real-Time Display (http://localhost:8501)
+```powershell
+docker-compose up --build
 ```
 
 ---
 
-## 10. Mission Replay
+## 8. Summary of REST & WebSocket Endpoints
 
-To replay a previously recorded mission:
-1. Ensure the backend is running (`http://127.0.0.1:8000`).
-2. Open the Streamlit dashboard (`http://localhost:8501`).
-3. Locate **🎬 Mission Control & Replay** in the left sidebar.
-4. Select `mission_001` or `mission_002` from the dropdown.
-5. Click **▶️ Start Replay**.
-6. The Digital Twin backend re-streams recorded CSV telemetry packet-by-packet through the **exact same physics and ML Digital Twin Core**, displaying live diagnostics.
-7. Click **⏹️ Stop Replay** to return to live simulation mode.
-
-Alternatively, trigger replay via REST API:
-```bash
-curl -X POST "http://127.0.0.1:8000/replay/start?mission=mission_001"
-```
-
----
-
-## 11. Example Diagnostic Output
-
-### 1. Normal Operation
-```json
-{
-  "main_indicator": "Normal operating behavior",
-  "res_egt": -0.98,
-  "res_cht": 0.24,
-  "health_trend": "stable",
-  "diagnostic_message": "Engine behavior is within the expected operating range.",
-  "severity": "NORMAL"
-}
-```
-
-### 2. Thermal Fault Operation (EGT Spike)
-```json
-{
-  "main_indicator": "EGT residual",
-  "res_egt": 39.46,
-  "res_cht": -3.09,
-  "health_trend": "degrading",
-  "diagnostic_message": "EGT is 39.5°C above expected. This indicates elevated exhaust temperature and suggests possible overheating.",
-  "severity": "CRITICAL"
-}
-```
-
-### 3. ML-Only Anomaly
-```json
-{
-  "main_indicator": "ML anomaly",
-  "res_egt": 4.10,
-  "res_cht": 2.30,
-  "health_trend": "stable",
-  "diagnostic_message": "ML anomaly detected: current telemetry differs from the learned normal operating pattern, although rule-based residuals remain within limits.",
-  "severity": "WARNING"
-}
-```
-
----
-
-## 12. Optional Add-ons & Extended Features
-
-### Supervised ML Fault Classification (Random Forest)
-A Random Forest classifier is trained on synthetic fault scenarios (`data/fault_classification.csv`) to classify patterns into:
-- `NORMAL`
-- `OVERHEATING`
-- `LUBRICATION_ISSUE`
-
-> **Disclaimer**: The lubrication fault class is currently represented using synthetic telemetry patterns because detailed lubrication sensors and validated lubrication-system models are not yet implemented. This classifier is intended strictly for prototype demonstration.
-
-### Engine Health Trend Plot
-The Streamlit dashboard tracks the Engine Health Index (%) over time in an interactive line chart, operating across both live simulation and mission replay modes.
-
-### Interactive API Documentation
-FastAPI automatically generates interactive Swagger documentation and OpenAPI specifications:
-- **Interactive Swagger UI**: `http://127.0.0.1:8000/docs`
-- **OpenAPI JSON Schema**: `http://127.0.0.1:8000/openapi.json`
-
-### Docker Deployment
-The project includes a `Dockerfile` and `docker-compose.yml` for multi-container deployment:
-```bash
-docker compose up --build
-```
-- FastAPI Backend: `http://localhost:8000`
-- Streamlit Dashboard: `http://localhost:8501`
-
----
-
-## 13. Current Prototype Scope
-
-The current implementation includes:
-
-- [x] Simulated aero-piston engine telemetry stream ($dt = 0.5\text{ s}$)
-- [x] Physics-based expected EGT, CHT, and oil temperature model
-- [x] Residual calculation ($\text{Measured} - \text{Expected}$) & EMA smoothing
-- [x] Rule-based anomaly threshold detection
-- [x] Isolation Forest ML anomaly detection (7 feature channels)
-- [x] Random Forest supervised fault classification (`NORMAL`, `OVERHEATING`, `LUBRICATION_ISSUE`)
-- [x] Hybrid rule + ML decision fusion
-- [x] Engine Health Index (EHI 0–100%) & Live Health Trend chart
-- [x] Degradation tracking ($d \in [0, 1]$)
-- [x] Prototype Remaining Useful Life (RUL hours) estimation
-- [x] Mission flight profiles (`endurance`, `high_altitude`, `cruise`)
-- [x] Mission CSV recording & replay engine
-- [x] Explainable diagnostics & human-readable maintenance wording
-- [x] FastAPI REST & WebSocket synchronization backend with `/docs` Swagger UI
-- [x] Streamlit interactive live monitoring dashboard UI
-- [x] Dockerfile & Docker Compose deployment configuration
-
----
-
-## 14. Planned Extensions
-
-> **PLANNED / FUTURE DEVELOPMENT** (Not currently implemented):
-
-### Engine Modeling & Subsystems
-- **Propulsion Subsystem**: Torque measurement, propeller speed ratio, shaft power modeling.
-- **Lubrication Subsystem**: Physical oil pressure & valve dynamics model.
-- **Fuel & Mixture Subsystem**: Fuel flow rate, air-fuel ratio, injector pulse dynamics.
-- **Ignition & Combustion**: Spark timing, cylinder pressure trace integration.
-- **Cooling Subsystem**: Radiator pressure drop, ram air flow, coolant temperature loops.
-
-### Hardware & Sensor Integration
-- **ECU / FADEC Integration**: Direct ingestion of engine control unit data streams.
-- **CAN Bus Interface**: Hardware-in-the-loop (HIL) CAN telemetry parsing.
-- **Multi-Sensor Expansion**: Vibration sensors (accelerometers), manifold pressure transducers.
-
-### Advanced AI & Prognostics
-- **Deep Learning Classifiers**: Multi-class neural networks for component-level diagnosis.
-- **Physics-Informed Neural Networks (PINNs)**: Hybrid physics-deep learning models.
-- **Probabilistic RUL Estimation**: Weibull failure distributions and Bayesian RUL confidence bounds.
-
----
-
-## 14. Limitations
-
-- **Simplified Physics**: The thermodynamic physics equations are empirical approximations suitable for real-time twin demonstration, not 3D CFD combustion solvers.
-- **Synthetic Simulator Baseline**: Telemetry is generated via an engine simulator with mathematical noise profiles; real aero-piston dynamics may introduce unmodeled harmonics.
-- **Isolation Forest Scope**: The ML model detects statistical pattern anomalies but does not independently deduce physical root causes without rule residual context.
-- **Prototype RUL Estimator**: Conceptual life-consumption estimator for demonstration purposes; requires fleet degradation datasets for physical certification.
-- **Non-Certified**: This prototype is designed for research and demonstration, not flight-critical avionics deployment.
-
----
-
-## 15. Future Validation
-
-To transition from prototype to validated engineering system, planned validation milestones include:
-1. Benchmarking physics model outputs against aero-piston engine test-cell dynamometer data.
-2. Training ML classifiers on real engine fault run-to-failure telemetry datasets.
-3. Conducting hardware-in-the-loop (HIL) testing via ECU CAN bus interfaces.
-4. Tuning anomaly thresholds using historical UAV flight logs.
-
----
-
-## 16. Team / Project Development
-
-For complete presentation and architectural documentation, refer to:
-- **Presentation Slide Deck Outline**: [docs/presentation_outline.md](file:///d:/uav_engine_twin_demo/docs/presentation_outline.md)
-- **Live Demonstration Script & 3-Min Flow**: [docs/demo_script.md](file:///d:/uav_engine_twin_demo/docs/demo_script.md)
-- **Technical Architecture Specification**: [docs/architecture.md](file:///d:/uav_engine_twin_demo/docs/architecture.md)
-
-### Technical Layer Ownership Model
-- **Physics / Engine Modeling Lead**: Thermodynamic curves, expected values, subsystem physics.
-- **AI / ML Lead**: Model training, feature engineering, anomaly detection, prognosis.
-- **Backend / Digital Twin Lead**: FastAPI, WebSockets, state estimation, replay engine.
-- **Dashboard Lead**: Streamlit UI, Plotly charts, diagnostic cards, UX polish.
-- **Integration / Hardware Lead**: ECU/FADEC interfaces, CAN integration, HIL testing.
+| Endpoint | Method | Description |
+|---|---|---|
+| `/` | GET | System info and available endpoints |
+| `/health` | GET | Container liveness check |
+| `/status` | GET | Simulation state, step count, active WS clients |
+| `/telemetry` | GET | Latest synchronized Digital Twin state snapshot |
+| `/history?n=100` | GET | Recent history ring-buffer snapshots |
+| `/reset` | POST | Reset simulation clock to $t = 0$ |
+| `/simulator/control` | POST | Manual throttle override & live fault injection |
+| `/simulator/reset_control`| POST | Reset to automatic flight profile simulation |
+| `/replay/start?mission=x` | POST | Start replaying recorded flight CSV log |
+| `/replay/stop` | POST | Stop replay and return to live telemetry mode |
+| `/ws/telemetry` | WS | Real-time WebSocket telemetry push stream |
